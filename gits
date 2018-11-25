@@ -164,11 +164,11 @@ sub docmd($)
 
   if ($OPTIONS{'quiet'})
   {
-    $cmd = "{ $cmd ; } 2>/dev/null";
+    $cmd = "$cmd 2> nul";
   }
   elsif ($pagination)
   {
-    $cmd = "{ $cmd ; } 2>&1";
+    $cmd = "$cmd  2>&1";
   }
   print STDERR "Running command: `$cmd`\n" if ($OPTIONS{'verbose'} > 1);
   system($cmd);
@@ -188,7 +188,7 @@ sub getcmd($;$)
 
   $cmd = gitsubst($cmd,$slave) if ($slave);
 
-  $cmd = "{ $cmd ;} 2>&1";
+  $cmd = "$cmd 2>&1";
   print STDERR "Running command: `$cmd`\n" if ($OPTIONS{'verbose'} > 1);
   my $out = `$cmd`;
   # strip out progress messages (e.g. "Writing objects:  94% (47/50)")
@@ -2525,7 +2525,8 @@ elsif ($ARGV[0] eq 'push')
   unshift(@list,[undef,".","."]) unless ($OPTIONS{'no-master'});
   my ($quick) = 0;
 
-  if (!$>)
+  # root check (non-Windows)
+  if (!$> && $^O ne "MSWin32" && $^O ne "msys")
   {
     # git uses $HOME only for configuration search, not ~user
     my $dir = $ENV{'HOME'};
